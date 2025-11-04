@@ -1,0 +1,10 @@
+from yggdrasil.domain.entities.galleryinfo import Galleryinfo
+from yggdrasil.domain.repositories.galleryinfo import GalleryinfoRepository
+
+
+class CreateGalleryinfoUseCase:
+    def __init__(self, galleryinfo_repository: GalleryinfoRepository) -> None:
+        self.galleryinfo_repository = galleryinfo_repository
+
+    async def execute(self, galleryinfo: Galleryinfo) -> None:
+        await self.galleryinfo_repository.add_galleryinfo(galleryinfo)
