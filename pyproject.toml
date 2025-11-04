@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "aiohttp>=3.12.15",
+    "asyncpg>=0.30.0",
     "pymongo>=4.15.1",
     "pythonmonkey>=1.2.0",
     "sqlalchemy>=2.0.43",
