@@ -1,0 +1,7 @@
+{
+    "INDEX_FILE": [
+        "index-korean.nozomi"
+    ],
+    "INFO_DB_URL": "mongodb://heliotrope_user:heliotropepasswd@localhost:27017",
+    "GALLERYINFO_DB_URL": "postgresql+asyncpg://heliotrope_user:heliotropepasswd@localhost:5432/heliotrope_db"
+}
