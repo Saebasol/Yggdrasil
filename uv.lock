@@ -1085,7 +1085,6 @@ version = "1.0.0"
 source = { editable = "." }
 dependencies = [
     { name = "aiohttp" },
-    { name = "asyncpg" },
     { name = "pymongo" },
     { name = "pythonmonkey" },
     { name = "sqlalchemy" },
@@ -1096,6 +1095,7 @@ style = [
     { name = "ruff" },
 ]
 test = [
+    { name = "asyncpg" },
     { name = "httpx" },
     { name = "pytest" },
     { name = "pytest-asyncio" },
@@ -1109,7 +1109,6 @@ type = [
 [package.metadata]
 requires-dist = [
     { name = "aiohttp", specifier = ">=3.12.15" },
-    { name = "asyncpg", specifier = ">=0.30.0" },
     { name = "pymongo", specifier = ">=4.15.1" },
     { name = "pythonmonkey", specifier = ">=1.2.0" },
     { name = "sqlalchemy", specifier = ">=2.0.43" },
@@ -1118,6 +1117,7 @@ requires-dist = [
 [package.metadata.requires-dev]
 style = [{ name = "ruff", specifier = ">=0.13.1" }]
 test = [
+    { name = "asyncpg", specifier = ">=0.30.0" },
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "pytest", specifier = ">=8.4.2" },
     { name = "pytest-asyncio", specifier = ">=1.2.0" },
