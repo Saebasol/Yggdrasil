@@ -41,7 +41,7 @@ jobs:
           python -m pip install pip
           pip install uv
       - name: Install dependencies
-        run: uv sync --group type
+        run: uv sync --group type dev
       - name: Check type
         run: uv run pyright
       - name: Check untyped function
@@ -76,7 +76,7 @@ jobs:
           python -m pip install pip
           pip install uv
       - name: Install dependencies
-        run: uv sync --group test
+        run: uv sync --group test dev
       - name: Check test
         run: uv run pytest --asyncio-mode=auto --cov=heliotrope --cov-report=xml
       - name: Codecov
