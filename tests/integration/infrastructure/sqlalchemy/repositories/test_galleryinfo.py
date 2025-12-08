@@ -35,6 +35,10 @@ async def test_get_galleryinfo_existing(
     assert retrieved_galleryinfo.title == sample_galleryinfo.title
     assert retrieved_galleryinfo.japanese_title == sample_galleryinfo.japanese_title
     assert retrieved_galleryinfo.galleryurl == sample_galleryinfo.galleryurl
+    assert (
+        retrieved_galleryinfo.languages[0].language_info.language
+        == sample_galleryinfo.languages[0].language_info.language
+    )
 
 
 @pytest.mark.asyncio
