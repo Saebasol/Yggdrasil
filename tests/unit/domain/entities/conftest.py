@@ -84,15 +84,14 @@ def sample_language_localname():
 
 
 @pytest.fixture()
-def sample_language(
-    sample_language_info: LanguageInfo,
-    sample_language_localname: LanguageLocalname,
-):
+def sample_language():
     return Language(
         galleryid=2639954,
         url="/galleries/2639954.html",
-        language_localname=sample_language_localname,
-        language_info=sample_language_info,
+        language_localname=LanguageLocalname(name="한국어"),
+        language_info=LanguageInfo(
+            language="korean", language_url="/index-korean.html"
+        ),
     )
 
 

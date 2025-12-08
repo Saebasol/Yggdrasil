@@ -130,8 +130,8 @@ class SAGalleryinfoRepository(GalleryinfoRepository):
                             url=language.url,
                             language_info_id=language_language_info_schema.id,
                             localname_id=language_language_localname_schema.id,
-                            language_info=language_info_schema,
-                            language_localname=language_localname_schema,
+                            language_info=language_language_info_schema,
+                            language_localname=language_language_localname_schema,
                         )
                     )
 
