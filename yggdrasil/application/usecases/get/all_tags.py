@@ -1,6 +1,6 @@
 from typing import Generator
 
-from yggdrasil.domain.entities.all_tags import AllTags
+from yggdrasil.application.dtos.all_tags import AllTags
 from yggdrasil.domain.repositories.artist import ArtistRepository
 from yggdrasil.domain.repositories.character import CharacterRepository
 from yggdrasil.domain.repositories.group import GroupRepository
