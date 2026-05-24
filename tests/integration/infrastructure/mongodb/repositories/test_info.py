@@ -163,6 +163,61 @@ async def test_search_by_query_no_results(info_repository: MongoDBInfoRepository
 
 
 @pytest.mark.asyncio
+async def test_search_by_query_exclude_tag(
+    info_repository: MongoDBInfoRepository, sample_info: Info
+):
+    await info_repository.add_info(sample_info)
+
+    count, infos = await info_repository.search_by_query(
+        ["-female:loli"], page=0, item=10
+    )
+
+    assert count == 0
+    assert len(infos) == 0
+
+
+@pytest.mark.asyncio
+async def test_search_by_query_exclude_artist(
+    info_repository: MongoDBInfoRepository, sample_info: Info
+):
+    await info_repository.add_info(sample_info)
+
+    count, infos = await info_repository.search_by_query(
+        ["-artist:tamano_kedama"], page=0, item=10
+    )
+
+    assert count == 0
+    assert len(infos) == 0
+
+
+@pytest.mark.asyncio
+async def test_search_by_query_include_and_exclude(
+    info_repository: MongoDBInfoRepository, sample_info: Info
+):
+    await info_repository.add_info(sample_info)
+
+    count, infos = await info_repository.search_by_query(
+        ["artist:tamano_kedama", "-female:nonexistent_tag"], page=0, item=10
+    )
+
+    assert count == 1
+    assert len(infos) == 1
+    assert infos[0].id == sample_info.id
+
+
+@pytest.mark.asyncio
+async def test_search_by_query_exclude_title(
+    info_repository: MongoDBInfoRepository, sample_info: Info
+):
+    await info_repository.add_info(sample_info)
+
+    count, infos = await info_repository.search_by_query(["-Zenbu"], page=0, item=10)
+
+    assert count == 0
+    assert len(infos) == 0
+
+
+@pytest.mark.asyncio
 async def test_get_random_info(
     info_repository: MongoDBInfoRepository, sample_info: Info
 ):
