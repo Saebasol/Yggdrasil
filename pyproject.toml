@@ -18,7 +18,7 @@ test = [
 ]
 type = [
     "mypy>=1.18.2",
-    "pyright>=1.1.405",
+    "pyright>=1.1.410",
 ]
 dev = [
     "asyncpg>=0.30.0",
