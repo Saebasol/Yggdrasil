@@ -11,6 +11,7 @@ from yggdrasil.infrastructure.sqlalchemy.entities.language import LanguageSchema
 from yggdrasil.infrastructure.sqlalchemy.entities.related import RelatedSchema
 from yggdrasil.infrastructure.sqlalchemy.entities.scene_index import SceneIndexSchema
 from yggdrasil.infrastructure.sqlalchemy.repositories.artist import SAArtistRepository
+from yggdrasil.infrastructure.sqlalchemy.repositories.base import BaseSARepository
 from yggdrasil.infrastructure.sqlalchemy.repositories.character import (
     SACharacterRepository,
 )
@@ -26,7 +27,7 @@ from yggdrasil.infrastructure.sqlalchemy.repositories.tag import SATagRepository
 from yggdrasil.infrastructure.sqlalchemy.repositories.type import SATypeRepository
 
 
-class SAGalleryinfoRepository(GalleryinfoRepository):
+class SAGalleryinfoRepository(BaseSARepository, GalleryinfoRepository):
     def __init__(
         self,
         sa: SQLAlchemy,
@@ -39,7 +40,7 @@ class SAGalleryinfoRepository(GalleryinfoRepository):
         parody_repository: SAParodyRepository,
         tag_repository: SATagRepository,
     ) -> None:
-        self.sa = sa
+        super().__init__(sa)
         self.type_repository = type_repository
         self.artist_repository = artist_repository
         self.language_info_repository = language_info_repository
@@ -85,55 +86,98 @@ class SAGalleryinfoRepository(GalleryinfoRepository):
                     )
                 )
 
-                artists_schemas = [
-                    await self.artist_repository.get_or_add_artist(session, artist)
-                    for artist in galleryinfo.artists
-                ]
-                characters_schemas = [
-                    await self.character_repository.get_or_add_character(
-                        session, character
+                artists_schemas = (
+                    await self.artist_repository.get_or_add_artists(
+                        session, galleryinfo.artists
                     )
-                    for character in galleryinfo.characters
-                ]
+                    if galleryinfo.artists
+                    else []
+                )
+                characters_schemas = (
+                    await self.character_repository.get_or_add_characters(
+                        session, galleryinfo.characters
+                    )
+                    if galleryinfo.characters
+                    else []
+                )
 
-                groups_schemas = [
-                    await self.group_repository.get_or_add_group(session, group)
-                    for group in galleryinfo.groups
-                ]
+                groups_schemas = (
+                    await self.group_repository.get_or_add_groups(
+                        session, galleryinfo.groups
+                    )
+                    if galleryinfo.groups
+                    else []
+                )
 
-                parodys_schemas = [
-                    await self.parody_repository.get_or_add_parody(session, parody)
-                    for parody in galleryinfo.parodys
-                ]
+                parodys_schemas = (
+                    await self.parody_repository.get_or_add_parodies(
+                        session, galleryinfo.parodys
+                    )
+                    if galleryinfo.parodys
+                    else []
+                )
 
-                tags_schemas = [
-                    await self.tag_repository.get_or_add_tag(session, tag)
-                    for tag in galleryinfo.tags
-                ]
+                tags_schemas = (
+                    await self.tag_repository.get_or_add_tags(session, galleryinfo.tags)
+                    if galleryinfo.tags
+                    else []
+                )
 
-                languages_schemas: list[LanguageSchema] = []
-                for language in galleryinfo.languages:
-                    language_language_localname_schema = (
-                        await self.localname_repository.get_or_add_language_localname(
-                            session, language.language_localname
+                if galleryinfo.languages:
+                    language_localnames = [
+                        language.language_localname
+                        for language in galleryinfo.languages
+                    ]
+                    language_infos = [
+                        language.language_info for language in galleryinfo.languages
+                    ]
+
+                    localname_schemas = (
+                        await self.localname_repository.get_or_add_language_localnames(
+                            session, language_localnames
+                        )
+                    )
+                    language_info_schemas = (
+                        await self.language_info_repository.get_or_add_language_infos(
+                            session, language_infos
                         )
                     )
 
-                    language_language_info_schema = (
-                        await self.language_info_repository.get_or_add_language_info(
-                            session, language.language_info
+                    localname_map = {
+                        localname_schema.name: localname_schema
+                        for localname_schema in localname_schemas
+                    }
+                    language_info_map = {
+                        (
+                            lang_info_schema.language,
+                            lang_info_schema.language_url,
+                        ): lang_info_schema
+                        for lang_info_schema in language_info_schemas
+                    }
+
+                    languages_schemas: list[LanguageSchema] = []
+                    for language in galleryinfo.languages:
+                        language_localname_schema = localname_map[
+                            language.language_localname.name
+                        ]
+                        language_language_info_schema = language_info_map[
+                            (
+                                language.language_info.language,
+                                language.language_info.language_url,
+                            )
+                        ]
+                        languages_schemas.append(
+                            LanguageSchema(
+                                galleryid=language.galleryid,
+                                url=language.url,
+                                language_info_id=language_language_info_schema.id,
+                                localname_id=language_localname_schema.id,
+                                language_info=language_language_info_schema,
+                                language_localname=language_localname_schema,
+                            )
                         )
-                    )
-                    languages_schemas.append(
-                        LanguageSchema(
-                            galleryid=language.galleryid,
-                            url=language.url,
-                            language_info_id=language_language_info_schema.id,
-                            localname_id=language_language_localname_schema.id,
-                            language_info=language_language_info_schema,
-                            language_localname=language_language_localname_schema,
-                        )
-                    )
+                else:
+                    languages_schemas = []
 
                 galleryinfo_schema = GalleryinfoSchema(
                     id=galleryinfo.id,
