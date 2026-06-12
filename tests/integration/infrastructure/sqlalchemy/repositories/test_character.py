@@ -60,9 +60,7 @@ async def test_get_or_add_characters_batch_with_existing_character(
     await session.commit()
 
     assert len(characters) == 2
-    character_pairs = {
-        (character.character, character.url) for character in characters
-    }
+    character_pairs = {(character.character, character.url) for character in characters}
     assert ("character_existing", "/character/existing.html") in character_pairs
     assert ("character_new", "/character/new.html") in character_pairs
 
