@@ -32,6 +32,29 @@ async def test_get_or_add_type_existing_type(
 
 
 @pytest.mark.asyncio
+async def test_get_or_add_types_batch_with_existing_type(
+    sample_type: Type,
+    type_repository: SATypeRepository,
+    session: AsyncSession,
+):
+    existing_type = deepcopy(sample_type)
+    existing_type.type = "type_existing"
+
+    new_type = deepcopy(sample_type)
+    new_type.type = "type_new"
+
+    await type_repository.get_or_add_type(session, existing_type)
+    types = await type_repository.get_or_add_types(session, [existing_type, new_type])
+
+    await session.commit()
+
+    assert len(types) == 2
+    type_names = {type_schema.type for type_schema in types}
+    assert "type_existing" in type_names
+    assert "type_new" in type_names
+
+
+@pytest.mark.asyncio
 async def test_get_all_types_with_data(
     sample_type: Type,
     type_repository: SATypeRepository,

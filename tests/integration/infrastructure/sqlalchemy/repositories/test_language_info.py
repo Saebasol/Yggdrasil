@@ -46,6 +46,38 @@ async def test_get_or_add_language_info_existing_language_info(
 
 
 @pytest.mark.asyncio
+async def test_get_or_add_language_infos_batch_with_existing_language_info(
+    sample_language_info: LanguageInfo,
+    language_info_repository: SALanguageInfoRepository,
+    session: AsyncSession,
+):
+    existing_language_info = deepcopy(sample_language_info)
+    existing_language_info.language = "japanese"
+    existing_language_info.language_url = "/index-japanese.html"
+
+    new_language_info = deepcopy(sample_language_info)
+    new_language_info.language = "english"
+    new_language_info.language_url = "/index-english.html"
+
+    await language_info_repository.get_or_add_language_info(
+        session, existing_language_info
+    )
+    language_infos = await language_info_repository.get_or_add_language_infos(
+        session, [existing_language_info, new_language_info]
+    )
+
+    await session.commit()
+
+    assert len(language_infos) == 2
+    language_pairs = {
+        (language_info.language, language_info.language_url)
+        for language_info in language_infos
+    }
+    assert ("japanese", "/index-japanese.html") in language_pairs
+    assert ("english", "/index-english.html") in language_pairs
+
+
+@pytest.mark.asyncio
 async def test_get_all_language_info_with_data(
     sample_language_info: LanguageInfo,
     language_info_repository: SALanguageInfoRepository,

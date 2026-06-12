@@ -39,6 +39,35 @@ async def test_get_or_add_character_existing_character(
 
 
 @pytest.mark.asyncio
+async def test_get_or_add_characters_batch_with_existing_character(
+    sample_character: Character,
+    character_repository: SACharacterRepository,
+    session: AsyncSession,
+):
+    existing_character = deepcopy(sample_character)
+    existing_character.character = "character_existing"
+    existing_character.url = "/character/existing.html"
+
+    new_character = deepcopy(sample_character)
+    new_character.character = "character_new"
+    new_character.url = "/character/new.html"
+
+    await character_repository.get_or_add_character(session, existing_character)
+    characters = await character_repository.get_or_add_characters(
+        session, [existing_character, new_character]
+    )
+
+    await session.commit()
+
+    assert len(characters) == 2
+    character_pairs = {
+        (character.character, character.url) for character in characters
+    }
+    assert ("character_existing", "/character/existing.html") in character_pairs
+    assert ("character_new", "/character/new.html") in character_pairs
+
+
+@pytest.mark.asyncio
 async def test_get_all_characters_with_data(
     sample_character: Character,
     character_repository: SACharacterRepository,

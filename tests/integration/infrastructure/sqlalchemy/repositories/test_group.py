@@ -32,6 +32,31 @@ async def test_get_or_add_group_existing_group(
 
 
 @pytest.mark.asyncio
+async def test_get_or_add_groups_batch_with_existing_group(
+    sample_group: Group, group_repository: SAGroupRepository, session: AsyncSession
+):
+    existing_group = deepcopy(sample_group)
+    existing_group.group = "group_existing"
+    existing_group.url = "/group/existing.html"
+
+    new_group = deepcopy(sample_group)
+    new_group.group = "group_new"
+    new_group.url = "/group/new.html"
+
+    await group_repository.get_or_add_group(session, existing_group)
+    groups = await group_repository.get_or_add_groups(
+        session, [existing_group, new_group]
+    )
+
+    await session.commit()
+
+    assert len(groups) == 2
+    group_pairs = {(group.group, group.url) for group in groups}
+    assert ("group_existing", "/group/existing.html") in group_pairs
+    assert ("group_new", "/group/new.html") in group_pairs
+
+
+@pytest.mark.asyncio
 async def test_get_all_groups_with_data(
     sample_group: Group, group_repository: SAGroupRepository, session: AsyncSession
 ):

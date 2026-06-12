@@ -32,6 +32,31 @@ async def test_get_or_add_parody_existing_parody(
 
 
 @pytest.mark.asyncio
+async def test_get_or_add_parodies_batch_with_existing_parody(
+    sample_parody: Parody, parody_repository: SAParodyRepository, session: AsyncSession
+):
+    existing_parody = deepcopy(sample_parody)
+    existing_parody.parody = "parody_existing"
+    existing_parody.url = "/parody/existing.html"
+
+    new_parody = deepcopy(sample_parody)
+    new_parody.parody = "parody_new"
+    new_parody.url = "/parody/new.html"
+
+    await parody_repository.get_or_add_parody(session, existing_parody)
+    parodies = await parody_repository.get_or_add_parodies(
+        session, [existing_parody, new_parody]
+    )
+
+    await session.commit()
+
+    assert len(parodies) == 2
+    parody_pairs = {(parody.parody, parody.url) for parody in parodies}
+    assert ("parody_existing", "/parody/existing.html") in parody_pairs
+    assert ("parody_new", "/parody/new.html") in parody_pairs
+
+
+@pytest.mark.asyncio
 async def test_get_all_parodies_with_data(
     sample_parody: Parody, parody_repository: SAParodyRepository, session: AsyncSession
 ):

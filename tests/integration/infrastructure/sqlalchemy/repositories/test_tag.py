@@ -30,6 +30,29 @@ async def test_get_or_add_tag_existing_tag(
 
 
 @pytest.mark.asyncio
+async def test_get_or_add_tags_batch_with_existing_tag(
+    sample_tag: Tag,
+    sample_tag_male: Tag,
+    sample_tag_female: Tag,
+    tag_repository: SATagRepository,
+    session: AsyncSession,
+):
+    await tag_repository.get_or_add_tag(session, sample_tag)
+
+    tags = await tag_repository.get_or_add_tags(
+        session, [sample_tag, sample_tag_male, sample_tag_female]
+    )
+
+    await session.commit()
+
+    assert len(tags) == 3
+    tag_triplets = {(tag.tag, tag.female, tag.male) for tag in tags}
+    assert ("digital", False, False) in tag_triplets
+    assert ("shota", False, True) in tag_triplets
+    assert ("loli", True, False) in tag_triplets
+
+
+@pytest.mark.asyncio
 async def test_get_all_tags_with_data(
     sample_tag: Tag,
     sample_tag_male: Tag,

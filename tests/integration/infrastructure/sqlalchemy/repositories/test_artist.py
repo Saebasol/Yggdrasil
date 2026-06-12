@@ -32,6 +32,31 @@ async def test_get_or_add_artist_existing_artist(
 
 
 @pytest.mark.asyncio
+async def test_get_or_add_artists_batch_with_existing_artist(
+    sample_artist: Artist, artist_repository: SAArtistRepository, session: AsyncSession
+):
+    existing_artist = deepcopy(sample_artist)
+    existing_artist.artist = "artist_existing"
+    existing_artist.url = "/artist/existing.html"
+
+    new_artist = deepcopy(sample_artist)
+    new_artist.artist = "artist_new"
+    new_artist.url = "/artist/new.html"
+
+    await artist_repository.get_or_add_artist(session, existing_artist)
+    artists = await artist_repository.get_or_add_artists(
+        session, [existing_artist, new_artist]
+    )
+
+    await session.commit()
+
+    assert len(artists) == 2
+    artist_pairs = {(artist.artist, artist.url) for artist in artists}
+    assert ("artist_existing", "/artist/existing.html") in artist_pairs
+    assert ("artist_new", "/artist/new.html") in artist_pairs
+
+
+@pytest.mark.asyncio
 async def test_get_all_artists_with_data(
     sample_artist: Artist, artist_repository: SAArtistRepository, session: AsyncSession
 ):
