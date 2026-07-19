@@ -16,6 +16,10 @@ class PythonMonkeyResolvedImageRepository(ResolvedImageRepository):
     def javascript_interpreter(self) -> JavaScriptInterpreter:
         return self._javascript_interpreter
 
+    @property
+    def thumbnail_resolver(self) -> "ThumbnailResolver":
+        return self._thumbnail_resolver
+
     def resolve_thumbnail(
         self, galleryinfo_id: int, file: File, size: Size
     ) -> ResolvedImage:

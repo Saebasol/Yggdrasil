@@ -1,5 +1,6 @@
 # pyright: reportPrivateUsage=false
 import asyncio
+from collections.abc import Awaitable
 
 import pytest
 import pytest_asyncio
@@ -100,7 +101,7 @@ async def test_multiple_concurrent_requests(
 
     urls = [hitomi_la.base_url, hitomi_la.ltn_url]
 
-    tasks = []
+    tasks: list[Awaitable[ClientResponse]] = []
     for url in urls:
         task = client_session.get(url, headers=hitomi_la.headers)
         tasks.append(task)

@@ -23,7 +23,7 @@ class HitomiLaGalleryinfoRepository(GalleryinfoRepository):
 
         return RawGalleryinfo.from_dict(js_to_json).to_galleryinfo()
 
-    async def get_galleryinfo_without_deleted(self, id: int) -> Optional[Galleryinfo]:
+    async def get_galleryinfo_without_deleted(self, id: int) -> Galleryinfo | None:
         return await self.get_galleryinfo(id)
 
     async def __fetch_galleryinfo(self, headers: dict[str, Any]) -> list[int]:

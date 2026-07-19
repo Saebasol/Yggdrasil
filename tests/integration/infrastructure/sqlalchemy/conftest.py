@@ -22,6 +22,6 @@ async def sqlalchemy(db_url: str):
     sqlalchemy = SQLAlchemy.create(db_url)
     await sqlalchemy.create_all_table()
     yield sqlalchemy
-    async with sqlalchemy._engine.begin() as conn:
+    async with sqlalchemy.engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
     await sqlalchemy.engine.dispose()

@@ -3,7 +3,9 @@ from copy import deepcopy
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from tests.unit.domain.entities.conftest import sample_language_info
+from tests.unit.domain.entities.conftest import (
+    sample_language_info as sample_language_info,
+)
 from yggdrasil.domain.entities.language_info import LanguageInfo
 from yggdrasil.infrastructure.sqlalchemy.entities.language_info import (
     LanguageInfoSchema,

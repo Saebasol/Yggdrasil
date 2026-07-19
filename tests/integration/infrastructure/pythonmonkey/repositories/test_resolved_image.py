@@ -54,7 +54,7 @@ async def test_repository_initialization(
     repository: PythonMonkeyResolvedImageRepository,
 ):
     assert repository.javascript_interpreter is not None
-    assert repository._thumbnail_resolver is not None
+    assert repository.thumbnail_resolver is not None
 
 
 @pytest.mark.asyncio

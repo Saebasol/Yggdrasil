@@ -12,7 +12,7 @@ async def test_create_all_tables(db_url: str):
     sqlalchemy = SQLAlchemy.create(db_url)
     await sqlalchemy.create_all_table()
 
-    async with sqlalchemy._engine.connect() as conn:
+    async with sqlalchemy.engine.connect() as conn:
 
         def get_tables(sync_conn: Connection):
             inspector = inspect(sync_conn)
