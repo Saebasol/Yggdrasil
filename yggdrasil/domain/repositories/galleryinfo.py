@@ -10,7 +10,15 @@ class GalleryinfoRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    async def get_galleryinfo_without_deleted(self, id: int) -> Optional[Galleryinfo]:
+        raise NotImplementedError
+
+    @abstractmethod
     async def get_all_galleryinfo_ids(self) -> list[int]:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def get_all_galleryinfo_ids_without_deleted(self) -> list[int]:
         raise NotImplementedError
 
     @abstractmethod
@@ -23,4 +31,5 @@ class GalleryinfoRepository(ABC):
 
     @abstractmethod
     async def delete_galleryinfo(self, id: int) -> None:
+        """Soft-delete a galleryinfo while preserving its source record."""
         raise NotImplementedError

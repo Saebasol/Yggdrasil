@@ -1,10 +1,13 @@
 from typing import Optional
 
-from sqlalchemy import delete, select
+from sqlalchemy import select
 
 from yggdrasil.domain.entities.galleryinfo import Galleryinfo
 from yggdrasil.domain.repositories.galleryinfo import GalleryinfoRepository
 from yggdrasil.infrastructure.sqlalchemy import SQLAlchemy
+from yggdrasil.infrastructure.sqlalchemy.entities.deletion import (
+    GalleryinfoDeletionSchema,
+)
 from yggdrasil.infrastructure.sqlalchemy.entities.file import FileSchema
 from yggdrasil.infrastructure.sqlalchemy.entities.galleryinfo import GalleryinfoSchema
 from yggdrasil.infrastructure.sqlalchemy.entities.language import LanguageSchema
@@ -14,6 +17,9 @@ from yggdrasil.infrastructure.sqlalchemy.repositories.artist import SAArtistRepo
 from yggdrasil.infrastructure.sqlalchemy.repositories.base import BaseSARepository
 from yggdrasil.infrastructure.sqlalchemy.repositories.character import (
     SACharacterRepository,
+)
+from yggdrasil.infrastructure.sqlalchemy.repositories.deletion import (
+    SADeletionRepository,
 )
 from yggdrasil.infrastructure.sqlalchemy.repositories.group import SAGroupRepository
 from yggdrasil.infrastructure.sqlalchemy.repositories.language_info import (
@@ -39,6 +45,7 @@ class SAGalleryinfoRepository(BaseSARepository, GalleryinfoRepository):
         group_repository: SAGroupRepository,
         parody_repository: SAParodyRepository,
         tag_repository: SATagRepository,
+        deletion_repository: SADeletionRepository | None = None,
     ) -> None:
         super().__init__(sa)
         self.type_repository = type_repository
@@ -49,6 +56,7 @@ class SAGalleryinfoRepository(BaseSARepository, GalleryinfoRepository):
         self.group_repository = group_repository
         self.parody_repository = parody_repository
         self.tag_repository = tag_repository
+        self.deletion_repository = deletion_repository or SADeletionRepository(sa)
 
     async def get_galleryinfo(self, id: int) -> Optional[Galleryinfo]:
         async with self.sa.session_maker() as session:
@@ -62,10 +70,41 @@ class SAGalleryinfoRepository(BaseSARepository, GalleryinfoRepository):
                     return Galleryinfo.from_dict(schema_dict)
                 return None
 
+    async def get_galleryinfo_without_deleted(self, id: int) -> Optional[Galleryinfo]:
+        async with self.sa.session_maker() as session:
+            async with session.begin():
+                stmt = select(GalleryinfoSchema).where(
+                    GalleryinfoSchema.id == id,
+                    ~GalleryinfoSchema.id.in_(
+                        select(GalleryinfoDeletionSchema.galleryinfo_id)
+                    ),
+                )
+                result = await session.execute(stmt)
+
+                schema = result.scalar()
+                if schema:
+                    return Galleryinfo.from_dict(schema.to_dict())
+                return None
+
     async def get_all_galleryinfo_ids(self) -> list[int]:
         async with self.sa.session_maker() as session:
             async with session.begin():
                 stmt = select(GalleryinfoSchema.id).order_by(GalleryinfoSchema.id)
+                result = await session.execute(stmt)
+                return list(result.scalars().all())
+
+    async def get_all_galleryinfo_ids_without_deleted(self) -> list[int]:
+        async with self.sa.session_maker() as session:
+            async with session.begin():
+                stmt = (
+                    select(GalleryinfoSchema.id)
+                    .where(
+                        ~GalleryinfoSchema.id.in_(
+                            select(GalleryinfoDeletionSchema.galleryinfo_id)
+                        )
+                    )
+                    .order_by(GalleryinfoSchema.id)
+                )
                 result = await session.execute(stmt)
                 return list(result.scalars().all())
 
@@ -227,7 +266,5 @@ class SAGalleryinfoRepository(BaseSARepository, GalleryinfoRepository):
                 return result.scalar() is not None
 
     async def delete_galleryinfo(self, id: int) -> None:
-        async with self.sa.session_maker() as session:
-            async with session.begin():
-                stmt = delete(GalleryinfoSchema).where(GalleryinfoSchema.id == id)
-                await session.execute(stmt)
+        if await self.is_galleryinfo_exists(id):
+            await self.deletion_repository.add_galleryinfo_deletion(id)

@@ -18,6 +18,21 @@ class GetGalleryinfoUseCase:
         return galleryinfo
 
 
+class GetGalleryinfoWithoutDeletedUseCase:
+    def __init__(self, galleryinfo_repository: GalleryinfoRepository) -> None:
+        self.galleryinfo_repository = galleryinfo_repository
+
+    async def execute(self, id: int) -> Galleryinfo:
+        galleryinfo = await self.galleryinfo_repository.get_galleryinfo_without_deleted(
+            id
+        )
+
+        if galleryinfo is None:
+            raise GalleryinfoNotFound.from_id(id)
+
+        return galleryinfo
+
+
 class GetAllGalleryinfoIdsUseCase:
     def __init__(self, galleryinfo_repository: GalleryinfoRepository) -> None:
         self.galleryinfo_repository = galleryinfo_repository
@@ -27,3 +42,16 @@ class GetAllGalleryinfoIdsUseCase:
 
     async def execute(self) -> list[int]:
         return await self.galleryinfo_repository.get_all_galleryinfo_ids()
+
+
+class GetAllGalleryinfoIdsWithoutDeletedUseCase:
+    def __init__(self, galleryinfo_repository: GalleryinfoRepository) -> None:
+        self.galleryinfo_repository = galleryinfo_repository
+
+    def __await__(self) -> Generator[None, None, list[int]]:
+        return self.execute().__await__()
+
+    async def execute(self) -> list[int]:
+        return (
+            await self.galleryinfo_repository.get_all_galleryinfo_ids_without_deleted()
+        )

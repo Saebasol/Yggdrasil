@@ -23,6 +23,9 @@ class HitomiLaGalleryinfoRepository(GalleryinfoRepository):
 
         return RawGalleryinfo.from_dict(js_to_json).to_galleryinfo()
 
+    async def get_galleryinfo_without_deleted(self, id: int) -> Optional[Galleryinfo]:
+        return await self.get_galleryinfo(id)
+
     async def __fetch_galleryinfo(self, headers: dict[str, Any]) -> list[int]:
         index: list[int] = []
         for request_url in self.hitomi_la.index_url:
@@ -43,6 +46,9 @@ class HitomiLaGalleryinfoRepository(GalleryinfoRepository):
 
     async def get_all_galleryinfo_ids(self) -> list[int]:
         return await self.__fetch_galleryinfo(headers=self.hitomi_la.headers)
+
+    async def get_all_galleryinfo_ids_without_deleted(self) -> list[int]:
+        return await self.get_all_galleryinfo_ids()
 
     async def add_galleryinfo(self, galleryinfo: Galleryinfo) -> int:
         raise NotImplementedError

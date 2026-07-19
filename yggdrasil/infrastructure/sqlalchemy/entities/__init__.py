@@ -1,5 +1,8 @@
 from yggdrasil.infrastructure.sqlalchemy.entities.artist import ArtistSchema
 from yggdrasil.infrastructure.sqlalchemy.entities.character import CharacterSchema
+from yggdrasil.infrastructure.sqlalchemy.entities.deletion import (
+    GalleryinfoDeletionSchema,
+)
 from yggdrasil.infrastructure.sqlalchemy.entities.file import FileSchema
 from yggdrasil.infrastructure.sqlalchemy.entities.galleryinfo import GalleryinfoSchema
 from yggdrasil.infrastructure.sqlalchemy.entities.group import GroupSchema
@@ -20,6 +23,7 @@ __all__ = [
     "ArtistSchema",
     "CharacterSchema",
     "FileSchema",
+    "GalleryinfoDeletionSchema",
     "GalleryinfoSchema",
     "GroupSchema",
     "LanguageInfoSchema",

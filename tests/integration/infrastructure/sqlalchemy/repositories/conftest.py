@@ -6,6 +6,9 @@ from yggdrasil.infrastructure.sqlalchemy.repositories.artist import SAArtistRepo
 from yggdrasil.infrastructure.sqlalchemy.repositories.character import (
     SACharacterRepository,
 )
+from yggdrasil.infrastructure.sqlalchemy.repositories.deletion import (
+    SADeletionRepository,
+)
 from yggdrasil.infrastructure.sqlalchemy.repositories.galleryinfo import (
     SAGalleryinfoRepository,
 )
@@ -35,6 +38,11 @@ async def artist_repository(sqlalchemy: SQLAlchemy):
 @pytest_asyncio.fixture()
 async def character_repository(sqlalchemy: SQLAlchemy):
     return SACharacterRepository(sqlalchemy)
+
+
+@pytest_asyncio.fixture()
+async def deletion_repository(sqlalchemy: SQLAlchemy):
+    return SADeletionRepository(sqlalchemy)
 
 
 @pytest_asyncio.fixture()
