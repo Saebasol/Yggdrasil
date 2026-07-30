@@ -58,5 +58,5 @@ where = ["."]
 include = ["yggdrasil*"]
 
 [build-system]
-requires = ["setuptools>=72.0"]
+requires = ["setuptools>=82.0.1"]
 build-backend = "setuptools.build_meta"
